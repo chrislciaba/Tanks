@@ -1,4 +1,4 @@
-ype ('nonterminal, 'terminal) symbol =
+type ('nonterminal, 'terminal) symbol =
 | N of 'nonterminal
 | T of 'terminal
 
