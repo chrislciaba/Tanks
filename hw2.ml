@@ -2,6 +2,14 @@ type ('nonterminal, 'terminal) symbol =
 | N of 'nonterminal
 | T of 'terminal
 
+let rec return_list list x = match list with
+| [] -> []
+| h::t -> match h with
+  | (lhs, rhs) -> if x = lhs then ([rhs]@(return_list t x)) else (return_list t x)
+
+let convert_grammar gram1 = match gram1 with
+| (lhs, rhs) -> (lhs, (fun x -> return_list rhs x))
+
 let rec process_level rule_func cur_rule acc_func der frag =
  if cur_rule = [] then acc_func der frag else match frag with
   | [] -> None
