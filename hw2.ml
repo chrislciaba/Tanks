@@ -29,14 +29,14 @@ and need to see if the acceptor will accept this derivation *)
 (* if the rule is nonterminal, then we need to go down a level
 in the tree in order to try to find a matching terminal symbol.
 The most important part of this process is updating the acceptor
-function. If the current path returns None and we use the given
-acceptor, then we will just get None and that will be it. If
-we update the acceptor so that it checks the other rules in the
-list as well, then we will be able to check all of the rules
-instead of just the first one if it's nonterminal. If it's a
-terminal symbol and it's equal to the head of the fragment, then
-process the rest of the rule on the current level. Otherwise,
-this path doesn't work, so return None and the next function
+function. We need to make sure that we run the process_level function
+for all of the symbols in the list, not just the first one, hence an
+acceptor that processes the tail of the list after we reach an
+acceptable derivation for the head of the list and this will also
+return a list in the proper format since we process it from left to
+right. If it's a terminal symbol and it's equal to the head of the
+fragment, then process the rest of the rule on the current level.
+Otherwise, this path doesn't work, so return None and the next function
 will handle it. *)
 
     | (N a)::tl -> go_down_level a rule_func (rule_func a) (process_level rule_func tl acc_func) der frag
