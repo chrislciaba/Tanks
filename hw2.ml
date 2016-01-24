@@ -10,18 +10,18 @@ let rec return_list list x = match list with
 let convert_grammar gram1 = match gram1 with
 | (lhs, rhs) -> (lhs, (fun x -> return_list rhs x))
 
-(* process_level: this function works by going through all of
+(* process_rule: this function works by going through all of
 the items at the current level, i.e. the array containing the
 rule that we are examining *)
 let rec process_rule rule_func cur_rule acc_func der frag =
 
- (* if the current rule is empty, then we are out of options
+(* if the current rule is empty, then we are out of options
 and need to see if the acceptor will accept this derivation *)
 
  if cur_rule = [] then acc_func der frag else match frag with
 
- (* if the fragment contains nothing, then we will not be able
-    to find a matching derivation. *)
+(* if the fragment contains nothing, then we will not be able
+to find a matching derivation. *)
 
   | [] -> None
   | h::t -> match cur_rule with
@@ -42,7 +42,7 @@ will handle it. *)
     | (N a)::tl -> try_rule a rule_func (rule_func a) (process_rule rule_func tl acc_func) der frag
     | (T a)::tl -> if (a = h) then (process_rule rule_func tl acc_func der t) else None
 
-(* This function handles the list of rules that the function from
+(* try_rule: this function handles the list of rules that the function from
 the grammar returns. If there are no rules in the list, we cannot
 find a derivation, so return None. If there are rules in the list,
 then try to see what happens if we use the current rule in the
