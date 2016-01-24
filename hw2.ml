@@ -29,7 +29,7 @@ to find a matching derivation. *)
 (* if the rule is nonterminal, then we need to go down a level
 in the tree in order to try to find a matching terminal symbol.
 The most important part of this process is updating the acceptor
-function. We need to make sure that we run the process_level function
+function. We need to make sure that we run the process_rule function
 for all of the symbols in the list, not just the first one, hence an
 acceptor that processes the tail of the list after we reach an
 acceptable derivation for the head of the list and this will also
