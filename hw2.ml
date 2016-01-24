@@ -13,7 +13,7 @@ let convert_grammar gram1 = match gram1 with
 (* process_level: this function works by going through all of
 the items at the current level, i.e. the array containing the
 rule that we are examining *)
-let rec process_level rule_func cur_rule acc_func der frag =
+let rec process_rule rule_func cur_rule acc_func der frag =
 
  (* if the current rule is empty, then we are out of options
 and need to see if the acceptor will accept this derivation *)
@@ -39,8 +39,8 @@ fragment, then process the rest of the rule on the current level.
 Otherwise, this path doesn't work, so return None and the next function
 will handle it. *)
 
-    | (N a)::tl -> go_down_level a rule_func (rule_func a) (process_level rule_func tl acc_func) der frag
-    | (T a)::tl -> if (a = h) then (process_level rule_func tl acc_func der t) else None
+    | (N a)::tl -> try_rule a rule_func (rule_func a) (process_rule rule_func tl acc_func) der frag
+    | (T a)::tl -> if (a = h) then (process_rule rule_func tl acc_func der t) else None
 
 (* This function handles the list of rules that the function from
 the grammar returns. If there are no rules in the list, we cannot
@@ -50,12 +50,12 @@ derivation. If it works, return the derivation. If not, try
 the current function with that rule removed so we can see if the
 next one will work. *)
 
-and go_down_level cur rule_func cur_rule_list acc_func der frag = 
+and try_rule cur rule_func cur_rule_list acc_func der frag = 
   match cur_rule_list with
   | [] -> None
-  | h::t -> match (process_level rule_func h acc_func (der@[(cur, h)]) frag) with
-    | None -> (go_down_level cur rule_func t acc_func der frag)
+  | h::t -> match (process_rule rule_func h acc_func (der@[(cur, h)]) frag) with
+    | None -> (try_rule cur rule_func t acc_func der frag)
     | a -> a
 
 let parse_prefix gram accept frag = match gram with
-| (cur, rule_func) -> (go_down_level cur rule_func (rule_func cur) accept [] frag);;
+| (cur, rule_func) -> (try_rule cur rule_func (rule_func cur) accept [] frag);;
