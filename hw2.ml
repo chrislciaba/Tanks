@@ -5,7 +5,8 @@ type ('nonterminal, 'terminal) symbol =
 let rec return_list list x = match list with
 | [] -> []
 | h::t -> match h with
-  | (lhs, rhs) -> if x = lhs then ([rhs]@(return_list t x)) else (return_list t x)
+  | (lhs, rhs) -> if x = lhs then 
+    ([rhs]@(return_list t x)) else (return_list t x)
 
 let convert_grammar gram1 = match gram1 with
 | (lhs, rhs) -> (lhs, (fun x -> return_list rhs x))
@@ -39,10 +40,12 @@ fragment, then process the rest of the rule on the current level.
 Otherwise, this path doesn't work, so return None and the next function
 will handle it. *)
 
-    | (N a)::tl -> try_rule a rule_func (rule_func a) (process_rule rule_func tl acc_func) der frag
-    | (T a)::tl -> if (a = h) then (process_rule rule_func tl acc_func der t) else None
+    | (N a)::tl -> let v = (process_rule rule_func tl acc_func) in 
+      try_rule a rule_func (rule_func a) v der frag
+    | (T a)::tl -> if (a = h) then
+      (process_rule rule_func tl acc_func der t) else None
 
-(* try_rule: this function handles the list of rules that the function from
+(* try_rule: this function handles the list of rules that the
 the grammar returns. If there are no rules in the list, we cannot
 find a derivation, so return None. If there are rules in the list,
 then try to see what happens if we use the current rule in the
@@ -53,9 +56,12 @@ next one will work. *)
 and try_rule cur rule_func cur_rule_list acc_func der frag = 
   match cur_rule_list with
   | [] -> None
-  | h::t -> match (process_rule rule_func h acc_func (der@[(cur, h)]) frag) with
+  | h::t -> let v = (der@[(cur, h)]) in
+    let u = (process_rule rule_func h acc_func v frag) in
+    match u with
     | None -> (try_rule cur rule_func t acc_func der frag)
     | a -> a
 
 let parse_prefix gram accept frag = match gram with
-| (cur, rule_func) -> (try_rule cur rule_func (rule_func cur) accept [] frag);;
+| (cur, rule_func) -> let v = (rule_func cur) in
+  (try_rule cur rule_func v accept [] frag);;
