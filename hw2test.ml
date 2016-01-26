@@ -35,13 +35,13 @@ let english_grammar =
  list from left to right *)
 let l1 = ["ing"; "law"; "anti"; "hero"]
 
-let test0 = 
+let test_1 = 
   ((parse_prefix english_grammar accept_all l1) = None)
 
 let l2 = ["ex-"; "cop"; "s"]
 
 (* this tests if it stops when it finds the first rule that works *)
-let test1 =
+let test_2 =
   ((parse_prefix english_grammar accept_all l2) = 
    Some ([(Morpheme, [N Prefix; N Content]); 
           (Prefix, [T"ex-"]);
