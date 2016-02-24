@@ -1,68 +1,87 @@
+;(define test-x '(+ 3 (let ((a 1) (b 2)) (list a b))))
+;(define test-y '(+ 2 (let ((a 1) (c 2)) (list a c))))
+(define test-x '(
+  (lambda (a b)
+    (if #t
+      (+ (- a b) (let ((c 1) (d 2)) (list c d)))
+      (cons 4 4)
+    )
+  ) 1 2
+  )
+)
+
+(define test-y  '(
+    (lambda (a b)
+      (if #f
+        (cons 5 5)
+        (+ (- a b) (let ((c 1) (d 2)) (list c d)))
+      )
+    ) 1 2
+  )
+)
+
+(define (test-compare-expr x y)
+  (eval (replace-tcp (compare-expr x y)))
+)
+
+(define (replace-tcp x)
+  (cond
+    [(null? x) '()]
+    [(not (list? x))
+      (cond
+        [(equal? x 'TCP) #t]
+        [else x]
+      )
+    ]
+    [(equal? x '(not TCP)) #f]
+    [else (cons (replace-tcp (first x)) (replace-tcp (rest x)))]
+  )
+)
+
 (define (compare-expr x y)
+  (if (and
+    (list? x)
+    (list? y)
+    (equal? (length x) (length y))
+    (not (empty? x))
+    (not (empty? y))
+    )
     (cond
-      [
-        (and
-          (list? x)
-          (list? y)
-          (equal? (length x) (length y))
-          (not (empty? x))
-          (not (empty? y))
-          (or
-            (equal? (first x) 'quote)
-            (equal? (first y) 'quote)
-          )
+      [ (or
+          (equal? (first x) 'quote)
+          (equal? (first y) 'quote)
         )
         (handle-quote x y)
       ]
       ;;; handle IF statement
-      [
-        (and
-          (list? x)
-          (list? y)
-          (equal? (length x) (length y))
-          (not (empty? x))
-          (not (empty? y))
-          (or
+      [ (or
             (equal? (first y) 'if)
             (equal? (first x) 'if)
-          )
         )
         (handle-if x y)
       ]
       ;;;;;;;;;;;;;;;;;;;;;;;;
       ;;; handle LET statement
       ;;;;;;;;;;;;;;;;;;;;;;;;
-      [
-        (and
-          (list? x)
-          (list? y)
-          (equal? (length x) (length y))
-          (not (empty? x))
-          (not (empty? y))
-          (or
-            (equal? (first x) 'let)
-            (equal? (first y) 'let)
-          )
+      [ (or
+          (equal? (first x) 'let)
+          (equal? (first y) 'let)
         )
-         (handle-let  x  y)
+        (handle-let  x  y)
       ]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;
       ;;; handle LAMBDA statement
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      [
-        (and
-          (list? x)
-          (list? y)
-          (equal? (length x) (length y))
-          (not (empty? x))
-          (not (empty? y))
+      [ (and
           (equal? (first x) 'lambda)
           (equal? (first y) 'lambda)
         )
-         (handle-lamb x y)
+        (handle-lamb x y)
       ]
       [else (handle-list x y)]
     )
+    (handle x y)
+  )
 )
 
 
@@ -90,8 +109,6 @@
       )
   )
 )
-
-
 
 (define (handle-list x y)
   (cond
@@ -167,21 +184,6 @@
       (let-map (rest x) (rest y))
     ]
     [else #f]
-  )
-)
-
-(define (is-eq x y)
-  (if
-    (and
-      (list? x)
-      (list? y)
-      (not (empty? x))
-      (not (empty? y))
-      (equal? (length x) (length y))
-      (equal? (first x) (first y))
-    )
-    #t
-    #f
   )
 )
 
